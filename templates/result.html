@@ -1,0 +1,179 @@
+<html>
+  <head>
+    <title>Twimood</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>
+    	function processLists() {
+    		var result = {};
+    		happy = document.getElementById("happy");
+    		htweets = happy.getElementsByTagName("li");
+    		result.htweets = [];
+    		for(i = 0; i < htweets.length; ++i) {
+    			result.htweets.push(htweets[i].innerText);
+    		}
+    		angry = document.getElementById("angry");
+    		atweets = angry.getElementsByTagName("li");
+    		result.atweets = [];
+    		for(i = 0; i < atweets.length; ++i) {
+    			result.atweets.push(atweets[i].innerText);
+    		}
+    		sad = document.getElementById("sad");
+    		stweets = sad.getElementsByTagName("li");
+    		result.stweets = [];
+    		for(i = 0; i < stweets.length; ++i) {
+    			result.stweets.push(stweets[i].innerText);
+    		}
+    		var json = JSON.stringify(result);
+    		
+    		$.ajax({
+        		url: "http://localhost:8080/change",
+        		type: "POST",
+        		data: json,
+        		contentType:'application/json; charset=utf-8',
+        		dataType: "json",
+        		success: function() {
+        			window.location.href = '/';
+        		}
+        	});
+    	}
+    </script>
+    <style type="text/css">
+		body {
+    		font-family:'Helvetica', sans-serif;
+    		background-color:#4099FF;
+    		text-align: center;
+		}
+		ul {
+			width: 200px;
+			min-height: 100px;
+			float: left;
+			list-style-type:none;
+		}
+		li {
+			margin: 5px;
+			width: 200px;
+			padding: 5px;
+			background: white;
+			border-radius:15px;
+			border-color:#555;
+			border-style:solid;
+			box-shadow: 10px 10px 5px #888888;
+		}
+		h1 {
+			color: white;
+			font-size:400%;
+		}
+		h2 {
+			padding-top:0;
+			text-align: center;
+			color: white;		
+		}
+		h3 {
+			color: white;
+		}
+		.container { 
+			 border:2px solid #ccc;
+			 border-radius:25px;
+			 width:300px; 
+			 height: 500px; 
+			 overflow-y: scroll; 
+			 background: white;
+		}
+		table.center {
+			margin-left:auto; 
+			margin-right:auto;
+		}
+		input[type="submit"] {
+			padding: 7px 14px;
+			font-size: 14px;
+			line-height: 18px;
+			color: #000;
+			background-color: #fff;
+			border: 1px solid #3b88c3;
+			border-radius: 4px;
+			font-size: 14px;
+			font-weight: bold;
+		}
+	</style>
+  </head>
+  <body>
+	<section>
+		<h1>Results for "{{topic}}"</h1>
+		<h3>Move the tweets to the appropriate column and submit to update data</h3>
+		<table class="center">
+		  <td>
+		    <h2 id="hcount">Happy Tweets: {{hcount}}</h2>
+    		<div class="container">
+	          <ul id="happy">
+	          	{% for tweet in happy %}
+			      <li draggable="true">{{tweet}}</li>
+			    {% endfor %}
+		      </ul>
+		    </div>
+		  </td>
+		  <td>
+		  <td>
+		    <h2 id="acount">Angry Tweets: {{acount}}</h2>
+    		<div class="container">
+	          <ul id="angry">
+			    {% for tweet in angry %}
+			      <li draggable="true">{{tweet}}</li>
+			    {% endfor %}
+		      </ul>
+		    </div>
+		  </td>
+		  <td>
+		    <h2 id="scount">Sad Tweets: {{scount}}</h2>
+    		<div class="container">
+	          <ul id="sad">
+			    {% for tweet in sad %}
+			      <li id="" draggable="true">{{tweet}}</li>
+			    {% endfor %}
+		      </ul>
+		    </div>
+		  </td>
+		  <td>
+		    <h2 id="dcount">Unknown/Ignore: {{ucount}}</h2>
+    		<div class="container">
+	          <ul id="unknown">
+	          	{% if unknown != [] %}
+			      {% for tweet in unknown %}
+			        <li draggable="true">{{tweet}}</li>
+			      {% endfor %}
+		        {% endif %}
+		      </ul>
+		    </div>
+		  </td>
+		</table>
+	</section>
+	
+	<script src="../js/jquery-1.7.1.min.js"></script>
+	<script src="../js/jquery.sortable.js"></script>
+	<script>
+		$(function() {
+			$('#angry, #happy, #sad, #unknown').sortable({
+				connectWith: '.connected'
+			}).bind('sortupdate', function() {
+				text = document.getElementById("hcount");
+				list = document.getElementById("happy");
+    			elements = list.getElementsByTagName("li");
+				text.innerText = "Happy Tweets: " + elements.length.toString();
+				text = document.getElementById("acount");
+				list = document.getElementById("angry");
+    			elements = list.getElementsByTagName("li");
+				text.innerText = "Angry Tweets: " + elements.length.toString();
+				text = document.getElementById("scount");
+				list = document.getElementById("sad");
+    			elements = list.getElementsByTagName("li");
+				text.innerText = "Sad Tweets: " + elements.length.toString();
+				text = document.getElementById("ucount");
+				list = document.getElementById("unknown");
+    			elements = list.getElementsByTagName("li");
+				text.innerText = "Unknown/Ignore: " + elements.length.toString();
+			});
+		});
+	</script>
+	<br>
+	<input type="submit" value="Submit Changes" onclick="processLists()">
+  </body>
+</html>
